@@ -1,25 +1,23 @@
-import {
-  setTransitionProperty, getTransitionProperty,
-  getTransformXY, setTransformXY,
-  getTransformName,
-} from './propertyUtils';
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
-const RE_NUM = (/[\-+]?(?:\d*\.|)\d+(?:[eE][\-+]?\d+|)/).source;
+import { setTransitionProperty, getTransitionProperty, getTransformXY, setTransformXY, getTransformName } from './propertyUtils';
 
-let getComputedStyleX;
+var RE_NUM = /[\-+]?(?:\d*\.|)\d+(?:[eE][\-+]?\d+|)/.source;
+
+var getComputedStyleX = void 0;
 
 // https://stackoverflow.com/a/3485654/3040605
 function forceRelayout(elem) {
-  const originalStyle = elem.style.display;
+  var originalStyle = elem.style.display;
   elem.style.display = 'none';
   elem.offsetHeight; // eslint-disable-line
   elem.style.display = originalStyle;
 }
 
 function css(el, name, v) {
-  let value = v;
-  if (typeof name === 'object') {
-    for (const i in name) {
+  var value = v;
+  if ((typeof name === 'undefined' ? 'undefined' : _typeof(name)) === 'object') {
+    for (var i in name) {
       if (name.hasOwnProperty(i)) {
         css(el, i, name[i]);
       }
@@ -28,7 +26,7 @@ function css(el, name, v) {
   }
   if (typeof value !== 'undefined') {
     if (typeof value === 'number') {
-      value = `${value}px`;
+      value = value + 'px';
     }
     el.style[name] = value;
     return undefined;
@@ -37,12 +35,12 @@ function css(el, name, v) {
 }
 
 function getClientPosition(elem) {
-  let box;
-  let x;
-  let y;
-  const doc = elem.ownerDocument;
-  const body = doc.body;
-  const docElem = doc && doc.documentElement;
+  var box = void 0;
+  var x = void 0;
+  var y = void 0;
+  var doc = elem.ownerDocument;
+  var body = doc.body;
+  var docElem = doc && doc.documentElement;
   // 根据 GBS 最新数据，A-Grade Browsers 都已支持 getBoundingClientRect 方法，不用再考虑传统的实现方式
   box = elem.getBoundingClientRect();
 
@@ -78,15 +76,15 @@ function getClientPosition(elem) {
 
   return {
     left: x,
-    top: y,
+    top: y
   };
 }
 
 function getScroll(w, top) {
-  let ret = w[`page${top ? 'Y' : 'X'}Offset`];
-  const method = `scroll${top ? 'Top' : 'Left'}`;
+  var ret = w['page' + (top ? 'Y' : 'X') + 'Offset'];
+  var method = 'scroll' + (top ? 'Top' : 'Left');
   if (typeof ret !== 'number') {
-    const d = w.document;
+    var d = w.document;
     // ie6,7,8 standard mode
     ret = d.documentElement[method];
     if (typeof ret !== 'number') {
@@ -106,9 +104,9 @@ function getScrollTop(w) {
 }
 
 function getOffset(el) {
-  const pos = getClientPosition(el);
-  const doc = el.ownerDocument;
-  const w = doc.defaultView || doc.parentWindow;
+  var pos = getClientPosition(el);
+  var doc = el.ownerDocument;
+  var w = doc.defaultView || doc.parentWindow;
   pos.left += getScrollLeft(w);
   pos.top += getScrollTop(w);
   return pos;
@@ -135,14 +133,14 @@ function getDocument(node) {
 }
 
 function _getComputedStyle(elem, name, cs) {
-  let computedStyle = cs;
-  let val = '';
-  const d = getDocument(elem);
+  var computedStyle = cs;
+  var val = '';
+  var d = getDocument(elem);
   // computedStyle doesn't work with shadowdom
   if (elem.toString() == '[object ShadowRoot]') {
     return '';
   }
-  computedStyle = (computedStyle || d.defaultView.getComputedStyle(elem, null));
+  computedStyle = computedStyle || d.defaultView.getComputedStyle(elem, null);
 
   // https://github.com/kissyteam/kissy/issues/61
   if (computedStyle) {
@@ -152,17 +150,17 @@ function _getComputedStyle(elem, name, cs) {
   return val;
 }
 
-const _RE_NUM_NO_PX = new RegExp(`^(${RE_NUM})(?!px)[a-z%]+$`, 'i');
-const RE_POS = /^(top|right|bottom|left)$/;
-const CURRENT_STYLE = 'currentStyle';
-const RUNTIME_STYLE = 'runtimeStyle';
-const LEFT = 'left';
-const PX = 'px';
+var _RE_NUM_NO_PX = new RegExp('^(' + RE_NUM + ')(?!px)[a-z%]+$', 'i');
+var RE_POS = /^(top|right|bottom|left)$/;
+var CURRENT_STYLE = 'currentStyle';
+var RUNTIME_STYLE = 'runtimeStyle';
+var LEFT = 'left';
+var PX = 'px';
 
 function _getComputedStyleIE(elem, name) {
   // currentStyle maybe null
   // http://msdn.microsoft.com/en-us/library/ms535231.aspx
-  let ret = elem[CURRENT_STYLE] && elem[CURRENT_STYLE][name];
+  var ret = elem[CURRENT_STYLE] && elem[CURRENT_STYLE][name];
 
   // 当 width/height 设置为百分比时，通过 pixelLeft 方式转换的 width/height 值
   // 一开始就处理了! CUSTOM_STYLE.height,CUSTOM_STYLE.width ,cssHook 解决@2011-08-19
@@ -176,15 +174,15 @@ function _getComputedStyleIE(elem, name) {
   // exclude left right for relativity
   if (_RE_NUM_NO_PX.test(ret) && !RE_POS.test(name)) {
     // Remember the original values
-    const style = elem.style;
-    const left = style[LEFT];
-    const rsLeft = elem[RUNTIME_STYLE][LEFT];
+    var style = elem.style;
+    var left = style[LEFT];
+    var rsLeft = elem[RUNTIME_STYLE][LEFT];
 
     // prevent flashing of content
     elem[RUNTIME_STYLE][LEFT] = elem[CURRENT_STYLE][LEFT];
 
     // Put in the new values to get a computed value out
-    style[LEFT] = name === 'fontSize' ? '1em' : (ret || 0);
+    style[LEFT] = name === 'fontSize' ? '1em' : ret || 0;
     ret = style.pixelLeft + PX;
 
     // Revert the changed values
@@ -224,12 +222,12 @@ function setLeftTop(elem, offset, option) {
   if (css(elem, 'position') === 'static') {
     elem.style.position = 'relative';
   }
-  let presetH = -999;
-  let presetV = -999;
-  const horizontalProperty = getOffsetDirection('left', option);
-  const verticalProperty = getOffsetDirection('top', option);
-  const oppositeHorizontalProperty = oppositeOffsetDirection(horizontalProperty);
-  const oppositeVerticalProperty = oppositeOffsetDirection(verticalProperty);
+  var presetH = -999;
+  var presetV = -999;
+  var horizontalProperty = getOffsetDirection('left', option);
+  var verticalProperty = getOffsetDirection('top', option);
+  var oppositeHorizontalProperty = oppositeOffsetDirection(horizontalProperty);
+  var oppositeVerticalProperty = oppositeOffsetDirection(verticalProperty);
 
   if (horizontalProperty !== 'left') {
     presetH = 999;
@@ -238,29 +236,29 @@ function setLeftTop(elem, offset, option) {
   if (verticalProperty !== 'top') {
     presetV = 999;
   }
-  let originalTransition = '';
-  const originalOffset = getOffset(elem);
+  var originalTransition = '';
+  var originalOffset = getOffset(elem);
   if ('left' in offset || 'top' in offset) {
     originalTransition = getTransitionProperty(elem) || '';
     setTransitionProperty(elem, 'none');
   }
   if ('left' in offset) {
     elem.style[oppositeHorizontalProperty] = '';
-    elem.style[horizontalProperty] = `${presetH}px`;
+    elem.style[horizontalProperty] = presetH + 'px';
   }
   if ('top' in offset) {
     elem.style[oppositeVerticalProperty] = '';
-    elem.style[verticalProperty] = `${presetV}px`;
+    elem.style[verticalProperty] = presetV + 'px';
   }
   // force relayout
   forceRelayout(elem);
-  const old = getOffset(elem);
-  const originalStyle = {};
-  for (const key in offset) {
+  var old = getOffset(elem);
+  var originalStyle = {};
+  for (var key in offset) {
     if (offset.hasOwnProperty(key)) {
-      const dir = getOffsetDirection(key, option);
-      const preset = key === 'left' ? presetH : presetV;
-      const off = originalOffset[key] - old[key];
+      var dir = getOffsetDirection(key, option);
+      var preset = key === 'left' ? presetH : presetV;
+      var off = originalOffset[key] - old[key];
       if (dir === key) {
         originalStyle[dir] = preset + off;
       } else {
@@ -274,15 +272,15 @@ function setLeftTop(elem, offset, option) {
   if ('left' in offset || 'top' in offset) {
     setTransitionProperty(elem, originalTransition);
   }
-  const ret = {};
-  for (const key in offset) {
-    if (offset.hasOwnProperty(key)) {
-      const dir = getOffsetDirection(key, option);
-      const off = offset[key] - originalOffset[key];
-      if (key === dir) {
-        ret[dir] = originalStyle[dir] + off;
+  var ret = {};
+  for (var _key in offset) {
+    if (offset.hasOwnProperty(_key)) {
+      var _dir = getOffsetDirection(_key, option);
+      var _off = offset[_key] - originalOffset[_key];
+      if (_key === _dir) {
+        ret[_dir] = originalStyle[_dir] + _off;
       } else {
-        ret[dir] = originalStyle[dir] - off;
+        ret[_dir] = originalStyle[_dir] - _off;
       }
     }
   }
@@ -290,9 +288,9 @@ function setLeftTop(elem, offset, option) {
 }
 
 function setTransform(elem, offset) {
-  const originalOffset = getOffset(elem);
-  const originalXY = getTransformXY(elem);
-  const resultXY = { x: originalXY.x, y: originalXY.y };
+  var originalOffset = getOffset(elem);
+  var originalXY = getTransformXY(elem);
+  var resultXY = { x: originalXY.x, y: originalXY.y };
   if ('left' in offset) {
     resultXY.x = originalXY.x + offset.left - originalOffset.left;
   }
@@ -304,18 +302,17 @@ function setTransform(elem, offset) {
 
 function setOffset(elem, offset, option) {
   if (option.ignoreShake) {
-    const oriOffset = getOffset(elem);
+    var oriOffset = getOffset(elem);
 
-    const oLeft = oriOffset.left.toFixed(0);
-    const oTop = oriOffset.top.toFixed(0);
-    const tLeft = offset.left.toFixed(0);
-    const tTop = offset.top.toFixed(0);
+    var oLeft = oriOffset.left.toFixed(0);
+    var oTop = oriOffset.top.toFixed(0);
+    var tLeft = offset.left.toFixed(0);
+    var tTop = offset.top.toFixed(0);
 
     if (oLeft === tLeft && oTop === tTop) {
       return;
     }
   }
-
 
   if (option.useCssRight || option.useCssBottom) {
     setLeftTop(elem, offset, option);
@@ -327,7 +324,7 @@ function setOffset(elem, offset, option) {
 }
 
 function each(arr, fn) {
-  for (let i = 0; i < arr.length; i++) {
+  for (var i = 0; i < arr.length; i++) {
     fn(arr[i]);
   }
 }
@@ -336,16 +333,16 @@ function isBorderBoxFn(elem) {
   return getComputedStyleX(elem, 'boxSizing') === 'border-box';
 }
 
-const BOX_MODELS = ['margin', 'border', 'padding'];
-const CONTENT_INDEX = -1;
-const PADDING_INDEX = 2;
-const BORDER_INDEX = 1;
-const MARGIN_INDEX = 0;
+var BOX_MODELS = ['margin', 'border', 'padding'];
+var CONTENT_INDEX = -1;
+var PADDING_INDEX = 2;
+var BORDER_INDEX = 1;
+var MARGIN_INDEX = 0;
 
 function swap(elem, options, callback) {
-  const old = {};
-  const style = elem.style;
-  let name;
+  var old = {};
+  var style = elem.style;
+  var name = void 0;
 
   // Remember the old values, and insert the new ones
   for (name in options) {
@@ -366,17 +363,17 @@ function swap(elem, options, callback) {
 }
 
 function getPBMWidth(elem, props, which) {
-  let value = 0;
-  let prop;
-  let j;
-  let i;
+  var value = 0;
+  var prop = void 0;
+  var j = void 0;
+  var i = void 0;
   for (j = 0; j < props.length; j++) {
     prop = props[j];
     if (prop) {
       for (i = 0; i < which.length; i++) {
-        let cssProp;
+        var cssProp = void 0;
         if (prop === 'border') {
-          cssProp = `${prop}${which[i]}Width`;
+          cssProp = '' + prop + which[i] + 'Width';
         } else {
           cssProp = prop + which[i];
         }
@@ -387,31 +384,29 @@ function getPBMWidth(elem, props, which) {
   return value;
 }
 
-const domUtils = {};
+var domUtils = {};
 
-each(['Width', 'Height'], (name) => {
-  domUtils[`doc${name}`] = (refWin) => {
-    const d = refWin.document;
+each(['Width', 'Height'], function (name) {
+  domUtils['doc' + name] = function (refWin) {
+    var d = refWin.document;
     return Math.max(
-      // firefox chrome documentElement.scrollHeight< body.scrollHeight
-      // ie standard mode : documentElement.scrollHeight> body.scrollHeight
-      d.documentElement[`scroll${name}`],
-      // quirks : documentElement.scrollHeight 最大等于可视窗口多一点？
-      d.body[`scroll${name}`],
-      domUtils[`viewport${name}`](d));
+    // firefox chrome documentElement.scrollHeight< body.scrollHeight
+    // ie standard mode : documentElement.scrollHeight> body.scrollHeight
+    d.documentElement['scroll' + name],
+    // quirks : documentElement.scrollHeight 最大等于可视窗口多一点？
+    d.body['scroll' + name], domUtils['viewport' + name](d));
   };
 
-  domUtils[`viewport${name}`] = (win) => {
+  domUtils['viewport' + name] = function (win) {
     // pc browser includes scrollbar in window.innerWidth
-    const prop = `client${name}`;
-    const doc = win.document;
-    const body = doc.body;
-    const documentElement = doc.documentElement;
-    const documentElementProp = documentElement[prop];
+    var prop = 'client' + name;
+    var doc = win.document;
+    var body = doc.body;
+    var documentElement = doc.documentElement;
+    var documentElementProp = documentElement[prop];
     // 标准模式取 documentElement
     // backcompat 取 body
-    return doc.compatMode === 'CSS1Compat' && documentElementProp ||
-      body && body[prop] || documentElementProp;
+    return doc.compatMode === 'CSS1Compat' && documentElementProp || body && body[prop] || documentElementProp;
   };
 });
 
@@ -424,24 +419,22 @@ each(['Width', 'Height'], (name) => {
  'margin' : (css width) + padding + border + margin
  */
 function getWH(elem, name, ex) {
-  let extra = ex;
+  var extra = ex;
   if (isWindow(elem)) {
     return name === 'width' ? domUtils.viewportWidth(elem) : domUtils.viewportHeight(elem);
   } else if (elem.nodeType === 9) {
     return name === 'width' ? domUtils.docWidth(elem) : domUtils.docHeight(elem);
   }
-  const which = name === 'width' ? ['Left', 'Right'] : ['Top', 'Bottom'];
-  let borderBoxValue = name === 'width' ?
-        elem.getBoundingClientRect().width :
-        elem.getBoundingClientRect().height;
-  const computedStyle = getComputedStyleX(elem);
-  const isBorderBox = isBorderBoxFn(elem, computedStyle);
-  let cssBoxValue = 0;
+  var which = name === 'width' ? ['Left', 'Right'] : ['Top', 'Bottom'];
+  var borderBoxValue = name === 'width' ? elem.getBoundingClientRect().width : elem.getBoundingClientRect().height;
+  var computedStyle = getComputedStyleX(elem);
+  var isBorderBox = isBorderBoxFn(elem, computedStyle);
+  var cssBoxValue = 0;
   if (borderBoxValue === null || borderBoxValue === undefined || borderBoxValue <= 0) {
     borderBoxValue = undefined;
     // Fall back to computed then un computed css if necessary
     cssBoxValue = getComputedStyleX(elem, name);
-    if (cssBoxValue === null || cssBoxValue === undefined || (Number(cssBoxValue)) < 0) {
+    if (cssBoxValue === null || cssBoxValue === undefined || Number(cssBoxValue) < 0) {
       cssBoxValue = elem.style[name] || 0;
     }
     // Normalize '', auto, and prepare for extra
@@ -450,61 +443,61 @@ function getWH(elem, name, ex) {
   if (extra === undefined) {
     extra = isBorderBox ? BORDER_INDEX : CONTENT_INDEX;
   }
-  const borderBoxValueOrIsBorderBox = borderBoxValue !== undefined || isBorderBox;
-  const val = borderBoxValue || cssBoxValue;
+  var borderBoxValueOrIsBorderBox = borderBoxValue !== undefined || isBorderBox;
+  var val = borderBoxValue || cssBoxValue;
   if (extra === CONTENT_INDEX) {
     if (borderBoxValueOrIsBorderBox) {
-      return val - getPBMWidth(elem, ['border', 'padding'],
-          which, computedStyle);
+      return val - getPBMWidth(elem, ['border', 'padding'], which, computedStyle);
     }
     return cssBoxValue;
   } else if (borderBoxValueOrIsBorderBox) {
     if (extra === BORDER_INDEX) {
       return val;
     }
-    return val + (extra === PADDING_INDEX ?
-        -getPBMWidth(elem, ['border'], which, computedStyle) :
-        getPBMWidth(elem, ['margin'], which, computedStyle));
+    return val + (extra === PADDING_INDEX ? -getPBMWidth(elem, ['border'], which, computedStyle) : getPBMWidth(elem, ['margin'], which, computedStyle));
   }
-  return cssBoxValue + getPBMWidth(elem, BOX_MODELS.slice(extra),
-      which, computedStyle);
+  return cssBoxValue + getPBMWidth(elem, BOX_MODELS.slice(extra), which, computedStyle);
 }
 
-const cssShow = {
+var cssShow = {
   position: 'absolute',
   visibility: 'hidden',
-  display: 'block',
+  display: 'block'
 };
 
 // fix #119 : https://github.com/kissyteam/kissy/issues/119
-function getWHIgnoreDisplay(...args) {
-  let val;
-  const elem = args[0];
+function getWHIgnoreDisplay() {
+  for (var _len = arguments.length, args = Array(_len), _key2 = 0; _key2 < _len; _key2++) {
+    args[_key2] = arguments[_key2];
+  }
+
+  var val = void 0;
+  var elem = args[0];
   // in case elem is window
   // elem.offsetWidth === undefined
   if (elem.offsetWidth !== 0) {
     val = getWH.apply(undefined, args);
   } else {
-    swap(elem, cssShow, () => {
+    swap(elem, cssShow, function () {
       val = getWH.apply(undefined, args);
     });
   }
   return val;
 }
 
-each(['width', 'height'], (name) => {
-  const first = name.charAt(0).toUpperCase() + name.slice(1);
-  domUtils[`outer${first}`] = (el, includeMargin) => {
+each(['width', 'height'], function (name) {
+  var first = name.charAt(0).toUpperCase() + name.slice(1);
+  domUtils['outer' + first] = function (el, includeMargin) {
     return el && getWHIgnoreDisplay(el, name, includeMargin ? MARGIN_INDEX : BORDER_INDEX);
   };
-  const which = name === 'width' ? ['Left', 'Right'] : ['Top', 'Bottom'];
+  var which = name === 'width' ? ['Left', 'Right'] : ['Top', 'Bottom'];
 
-  domUtils[name] = (elem, v) => {
-    let val = v;
+  domUtils[name] = function (elem, v) {
+    var val = v;
     if (val !== undefined) {
       if (elem) {
-        const computedStyle = getComputedStyleX(elem);
-        const isBorderBox = isBorderBoxFn(elem);
+        var computedStyle = getComputedStyleX(elem);
+        var isBorderBox = isBorderBoxFn(elem);
         if (isBorderBox) {
           val += getPBMWidth(elem, ['padding', 'border'], which, computedStyle);
         }
@@ -517,7 +510,7 @@ each(['width', 'height'], (name) => {
 });
 
 function mix(to, from) {
-  for (const i in from) {
+  for (var i in from) {
     if (from.hasOwnProperty(i)) {
       to[i] = from[i];
     }
@@ -525,34 +518,36 @@ function mix(to, from) {
   return to;
 }
 
-const utils = {
-  getWindow(node) {
+var utils = {
+  getWindow: function getWindow(node) {
     if (node && node.document && node.setTimeout) {
       return node;
     }
-    const doc = node.ownerDocument || node;
+    var doc = node.ownerDocument || node;
     return doc.defaultView || doc.parentWindow;
   },
-  getDocument,
-  offset(el, value, option) {
+
+  getDocument: getDocument,
+  offset: function offset(el, value, option) {
     if (typeof value !== 'undefined') {
       setOffset(el, value, option || {});
     } else {
       return getOffset(el);
     }
   },
-  isWindow,
-  each,
-  css,
-  clone(obj) {
-    let i;
-    const ret = {};
+
+  isWindow: isWindow,
+  each: each,
+  css: css,
+  clone: function clone(obj) {
+    var i = void 0;
+    var ret = {};
     for (i in obj) {
       if (obj.hasOwnProperty(i)) {
         ret[i] = obj[i];
       }
     }
-    const overflow = obj.overflow;
+    var overflow = obj.overflow;
     if (overflow) {
       for (i in obj) {
         if (obj.hasOwnProperty(i)) {
@@ -562,22 +557,29 @@ const utils = {
     }
     return ret;
   },
-  mix,
-  getWindowScrollLeft(w) {
+
+  mix: mix,
+  getWindowScrollLeft: function getWindowScrollLeft(w) {
     return getScrollLeft(w);
   },
-  getWindowScrollTop(w) {
+  getWindowScrollTop: function getWindowScrollTop(w) {
     return getScrollTop(w);
   },
-  merge(...args) {
-    const ret = {};
-    for (let i = 0; i < args.length; i++) {
+  merge: function merge() {
+    var ret = {};
+
+    for (var _len2 = arguments.length, args = Array(_len2), _key3 = 0; _key3 < _len2; _key3++) {
+      args[_key3] = arguments[_key3];
+    }
+
+    for (var i = 0; i < args.length; i++) {
       utils.mix(ret, args[i]);
     }
     return ret;
   },
+
   viewportWidth: 0,
-  viewportHeight: 0,
+  viewportHeight: 0
 };
 
 mix(utils, domUtils);
