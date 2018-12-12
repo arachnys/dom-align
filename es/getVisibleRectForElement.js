@@ -26,7 +26,7 @@ function getVisibleRectForElement(element) {
     // body may have overflow set on it, yet we still get the entire
     // viewport. In some browsers, el.offsetParent may be
     // document.documentElement, so check for that too.
-    el !== body && el !== documentElement && utils.css(el, 'overflow') !== 'visible') {
+    el !== body && el !== documentElement && utils.css(el, 'overflow') !== 'visible' && el.toString() !== "[object ShadowRoot]") {
       var pos = utils.offset(el);
       // add border
       pos.left += el.clientLeft;
