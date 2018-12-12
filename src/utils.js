@@ -138,6 +138,10 @@ function _getComputedStyle(elem, name, cs) {
   let computedStyle = cs;
   let val = '';
   const d = getDocument(elem);
+  // computedStyle doesn't work with shadowdom
+  if (elem.toString() == "[object ShadowRoot]") {
+    return '';
+  }
   computedStyle = (computedStyle || d.defaultView.getComputedStyle(elem, null));
 
   // https://github.com/kissyteam/kissy/issues/61
